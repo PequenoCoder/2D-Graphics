@@ -1,0 +1,94 @@
+[gd_scene load_steps=8 format=3 uid="uid://bntrd5gdawf6w"]
+
+[ext_resource type="Script" uid="uid://bcpooalaq1p8m" path="res://player.gd" id="1_sweqy"]
+[ext_resource type="Texture2D" uid="uid://bkx4q3n0ls1xq" path="res://art/playerGrey_up1.png" id="2_2hs0m"]
+[ext_resource type="Texture2D" uid="uid://6w5bnbithd3x" path="res://art/playerGrey_up2.png" id="3_1jxqw"]
+[ext_resource type="Texture2D" uid="uid://bh5giwnmtyd8s" path="res://art/right.png" id="4_dw050"]
+[ext_resource type="Texture2D" uid="uid://ccmtk8c25bwjh" path="res://art/playerGrey_walk2.png" id="5_b26j0"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_n7ghd"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_b26j0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_1jxqw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_dw050")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_2hs0m")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_2hs0m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_1jxqw")
+}],
+"loop": true,
+"name": &"down",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_dw050")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_b26j0")
+}],
+"loop": true,
+"name": &"right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_2hs0m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_1jxqw")
+}],
+"loop": true,
+"name": &"up",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_nvl01"]
+radius = 27.0
+height = 68.0
+
+[node name="Player" type="CharacterBody2D"]
+collision_mask = 3
+script = ExtResource("1_sweqy")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(207, 238.75)
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_n7ghd")
+animation = &"up"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(207, 238.75)
+shape = SubResource("CapsuleShape2D_nvl01")
+
+[node name="MobDetector" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="MobDetector"]
+position = Vector2(207, 238.75)
+shape = SubResource("CapsuleShape2D_nvl01")
+
+[connection signal="hit" from="." to="." method="_on_hit"]
+[connection signal="body_entered" from="MobDetector" to="." method="_on_Player_body_entered"]
