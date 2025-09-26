@@ -3,6 +3,7 @@ signal hit
 
 @export var speed = 400  # How fast the player will move (pixels/sec).
 var screen_size  # Size of the game window.
+var is_hit = false  # Flag to prevent multiple hits
 
 func _ready():
 	screen_size = get_viewport_rect().size
@@ -43,14 +44,51 @@ func _process(delta):
 
 
 func _on_Player_body_entered(_body):
-	hide()  # Player disappears after being hit.
+	if is_hit:
+		return
+		
+	is_hit = true
+	
+	set_physics_process(false)
+	
+	create_fade_effect()
+	
+	#Hide the original player sprite immediately
+	$AnimatedSprite2D.visible = false
+	
 	emit_signal("hit")
+	
+	#Hide the entire player after fade completes
+	await get_tree().create_timer(3.0).timeout
 	$CollisionShape2D.set_deferred("disabled", true)
+	hide()
+
+func create_fade_effect():
+	var fade_sprite = FadeSprite.new()
+	
+	var current_texture = $AnimatedSprite2D.sprite_frames.get_frame_texture($AnimatedSprite2D.animation, $AnimatedSprite2D.frame)
+	fade_sprite.set_texture(current_texture)
+	
+	fade_sprite.scale = $AnimatedSprite2D.scale
+	fade_sprite.flip_h = $AnimatedSprite2D.flip_h
+	fade_sprite.flip_v = $AnimatedSprite2D.flip_v
+	
+	fade_sprite.fade_duration = 3.0
+	
+	get_parent().add_child(fade_sprite)
+	fade_sprite.global_position = $AnimatedSprite2D.global_position
+	
+	fade_sprite.start_fade_out()
+	
+	fade_sprite.connect("fade_completed", func(node): node.queue_free())
 
 func start(pos):
 	position = pos
 	show()
 	$CollisionShape2D.disabled = false
+	$AnimatedSprite2D.visible = true
+	set_physics_process(true)
+	is_hit = false
 
 
 func _on_visible_on_screen_notifier_2d_screen_exited() -> void:
